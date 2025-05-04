@@ -1,4 +1,9 @@
-{ config, pkgs, lib, ... }:
+{
+  config,
+  pkgs,
+  lib,
+  ...
+}:
 
 let
   cfg = config.hardware.zynq;
@@ -7,7 +12,7 @@ in
 {
   options.hardware.zynq = {
     platform = lib.mkOption {
-      type = lib.types.enum [ "zynq" "zynqmp" ];
+      type = lib.nixos-xlnx.types.xilinxPlatform;
       description = lib.mdDoc ''
         Whether you use Zynq 7000 or Zynq UltraScale+ MPSoC.
       '';
@@ -23,6 +28,7 @@ in
         SDT files can be generated from XSA using {command}`./gendt.tcl`.
       '';
     };
+
     dtDir = lib.mkOption {
       type = lib.types.path;
       example = lib.literalExpression "./gendt/dt";
@@ -32,6 +38,7 @@ in
         DT files can be generated from XSA using {command}`./gendt.tcl`.
       '';
     };
+
     dtb = lib.mkOption {
       type = lib.types.path;
       defaultText = lib.literalMD "built from {option}`hardware.zynq.dtDir`";
@@ -55,21 +62,25 @@ in
         If you are using {command}`scripts/gendt.tcl`, it is extracted to the `sdt` directory.
       '';
     };
+
     fsbl = lib.mkOption {
       type = lib.types.path;
       defaultText = lib.literalMD "generated from {option}`hardware.zynq.sdtDir`";
-      default = pkgs.pkgsCross.aarch64-embedded."${cfg.platform}-fsbl".override { inherit (cfg) sdtDir; } + "/${cfg.platform}_fsbl.elf";
+      default = cfg.platform.fbsl.override { inherit (cfg) sdtDir; } + "/${cfg.platform.name}_fsbl.elf";
       example = lib.literalExpression "./firmware/fsbl_a53.elf";
       description = lib.mdDoc ''
         Path to First Stage Boot Loader.
       '';
     };
+
     pmufw = lib.mkOption {
       type = lib.types.nullOr lib.types.path;
       defaultText = lib.literalMD "generated from {option}`hardware.zynq.sdtDir`";
-      default = if cfg.platform == "zynqmp"
-        then pkgs.pkgsCross.microblaze-embedded.zynqmp-pmufw.override { inherit (cfg) sdtDir; } + "/zynqmp_pmufw.elf"
-        else null;
+      default =
+        if cfg.platform.name == "zynqmp" then
+          cfg.platform.pmufw { inherit (cfg) sdtDir; } + "/zynqmp_pmufw.elf"
+        else
+          null;
       example = lib.literalExpression "./firmware/pmufw.elf";
       description = lib.mdDoc ''
         Path to Zynq MPSoC Platform Management Unit Firmware.
@@ -79,31 +90,35 @@ in
     boot-bin = lib.mkOption {
       type = lib.types.path;
       defaultText = "generated from fsbl, pmufw, bitstream, and dtb";
-      default = let
-        dtb = "${config.hardware.deviceTree.package}/system.dtb";
-        bif = {
-          zynqmp = ''
-            the_ROM_image: {
-              [bootloader, destination_cpu=a53-0] ${cfg.fsbl}
-              [pmufw_image] ${cfg.pmufw}
-              [destination_device=pl] ${cfg.bitstream}
-              [destination_cpu=a53-0, exception_level=el-3, trustzone] ${pkgs.armTrustedFirmwareZynqMP}/bl31.elf
-              [destination_cpu=a53-0, load=0x00100000] ${dtb}
-              [destination_cpu=a53-0, exception_level=el-2] ${pkgs.ubootZynqMP}/u-boot.elf
+      default =
+        let
+          dtb = "${config.hardware.deviceTree.package}/system.dtb";
+          bif =
+            {
+              zynqmp = ''
+                the_ROM_image: {
+                  [bootloader, destination_cpu=a53-0] ${cfg.fsbl}
+                  [pmufw_image] ${cfg.pmufw}
+                  [destination_device=pl] ${cfg.bitstream}
+                  [destination_cpu=a53-0, exception_level=el-3, trustzone] ${cfg.platform.armTrustedFirmware}/bl31.elf
+                  [destination_cpu=a53-0, load=0x00100000] ${dtb}
+                  [destination_cpu=a53-0, exception_level=el-2] ${cfg.platform.uboot}/u-boot.elf
+                }
+              '';
+              zynq = ''
+                the_ROM_image: {
+                  [bootloader] ${cfg.fsbl}
+                  ${cfg.bitstream}
+                  ${cfg.platform.uboot}/u-boot.elf
+                  [load=0x00100000] ${dtb}
+                }
+              '';
             }
-          '';
-          zynq = ''
-            the_ROM_image: {
-              [bootloader] ${cfg.fsbl}
-              ${cfg.bitstream}
-              ${pkgs.ubootZynq}/u-boot.elf
-              [load=0x00100000] ${dtb}
-            }
-          '';
-        }.${cfg.platform};
-      in pkgs.runCommand "BOOT.BIN" { nativeBuildInputs = [ pkgs.xilinx-bootgen_2024_1 ]; } ''
-        bootgen -image ${pkgs.writeText "bootgen.bif" bif} -arch ${cfg.platform} -w -o $out
-      '';
+            .${cfg.platform.name};
+        in
+        pkgs.runCommand "BOOT.BIN" { nativeBuildInputs = [ cfg.platform.bootgen ]; } ''
+          bootgen -image ${pkgs.writeText "bootgen.bif" bif} -arch ${cfg.platform.name} -w -o $out
+        '';
       description = lib.mdDoc ''
         You can build BOOT.BIN without building the whole system using
         {command}`nix build .#nixosConfigurations.<hostname>.cfg.boot-bin`
@@ -114,7 +129,7 @@ in
   config = {
     assertions = [
       {
-        assertion = cfg.platform == "zynqmp" -> cfg.pmufw != null;
+        assertion = cfg.platform.name == "zynqmp" -> cfg.pmufw != null;
         message = "hardware.zynq.pmufw is not optional on ZynqMP.";
       }
     ];

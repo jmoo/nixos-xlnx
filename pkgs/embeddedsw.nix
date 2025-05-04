@@ -1,68 +1,69 @@
-{ lib
-, stdenv
-, fetchFromGitHub
-, buildPackages
-, cmake
-, sdtDir ? null
+{
+  lib,
+  stdenv,
+  buildPackages,
+  cmake,
+  sdtDir ? null,
+  xilinxSources,
+  ...
 }:
 
 let
-  version = "2024.1";
-  src = fetchFromGitHub {
-    owner = "Xilinx";
-    repo = "embeddedsw";
-    rev = "xilinx_v${version}";
-    hash = "sha256-vh7tdHNd3miDZplTiRP8UWhQ/HLrjMcbQXCJjTO4p9o=";
-  };
+  mkEmbeddedswApp =
+    { template, proc, ... }@args:
+    stdenv.mkDerivation (
+      lib.nixos-xlnx.withSource xilinxSources.embeddedsw {
+        pname = template;
 
-  mkEmbeddedswApp = { template, proc, ... } @ args: stdenv.mkDerivation ({
-    pname = template;
-    inherit version src;
+        nativeBuildInputs = [
+          (buildPackages.python3.withPackages (p: [
+            buildPackages.python-lopper
+            p.pyyaml
+            # ModuleNotFoundError: No module named 'distutils'
+            p.setuptools
+            p.libfdt
+          ]))
+          cmake
+        ];
 
-    nativeBuildInputs = [
-      (buildPackages.python3.withPackages (p: [
-        buildPackages.python-lopper
-        p.pyyaml
-        # ModuleNotFoundError: No module named 'distutils'
-        p.setuptools
-        p.libfdt
-      ]))
-      cmake
-    ];
+        depsBuildBuild = [ buildPackages.stdenv.cc ]; # cpp
+        env.LOPPER_DTC_FLAGS = "-@";
 
-    depsBuildBuild = [ buildPackages.stdenv.cc ];  # cpp
-    env.LOPPER_DTC_FLAGS = "-@";
+        configurePhase = ''
+          runHook preConfigure
+          export ESW_REPO=$(readlink -f .)
+          export BSP_DIR=$(mktemp -d)
+          pushd $BSP_DIR
+          python $ESW_REPO/scripts/pyesw/create_bsp.py -t ${template} -s ${sdtDir}/system-top.dts -p ${proc}
+          popd
+          # python $ESW_REPO/scripts/pyesw/build_bsp.py -d $BSP_DIR
+          export APP_DIR=$(mktemp -d)
+          pushd $APP_DIR
+          python $ESW_REPO/scripts/pyesw/create_app.py -t ${template} -d $BSP_DIR
+          popd
+          runHook postConfigure
+        '';
 
-    configurePhase = ''
-      runHook preConfigure
-      export ESW_REPO=$(readlink -f .)
-      export BSP_DIR=$(mktemp -d)
-      pushd $BSP_DIR
-      python $ESW_REPO/scripts/pyesw/create_bsp.py -t ${template} -s ${sdtDir}/system-top.dts -p ${proc}
-      popd
-      # python $ESW_REPO/scripts/pyesw/build_bsp.py -d $BSP_DIR
-      export APP_DIR=$(mktemp -d)
-      pushd $APP_DIR
-      python $ESW_REPO/scripts/pyesw/create_app.py -t ${template} -d $BSP_DIR
-      popd
-      runHook postConfigure
-    '';
+        buildPhase = ''
+          runHook preBuild
+          pushd $APP_DIR
+          python $ESW_REPO/scripts/pyesw/build_app.py
+          popd
+          runHook postBuild
+        '';
 
-    buildPhase = ''
-      runHook preBuild
-      pushd $APP_DIR
-      python $ESW_REPO/scripts/pyesw/build_app.py
-      popd
-      runHook postBuild
-    '';
-
-    installPhase = ''
-      runHook preInstall
-      install -Dm555 $APP_DIR/build/${template}.elf -t $out/
-      runHook postInstall
-    '';
-    dontStrip = true;
-  } // builtins.removeAttrs args [ "template" "proc" ]);
+        installPhase = ''
+          runHook preInstall
+          install -Dm555 $APP_DIR/build/${template}.elf -t $out/
+          runHook postInstall
+        '';
+        dontStrip = true;
+      }
+      // builtins.removeAttrs args [
+        "template"
+        "proc"
+      ]
+    );
 
 in
 

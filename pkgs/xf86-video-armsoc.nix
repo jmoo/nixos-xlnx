@@ -1,11 +1,12 @@
-{ lib
-, stdenv
-, fetchFromGitLab
-, fetchpatch
-, pkg-config
-, autoreconfHook
-, xorg
-, libdrm
+{
+  lib,
+  stdenv,
+  fetchFromGitLab,
+  fetchpatch,
+  pkg-config,
+  autoreconfHook,
+  xorg,
+  libdrm,
 }:
 
 stdenv.mkDerivation (finalAttrs: {
@@ -15,7 +16,10 @@ stdenv.mkDerivation (finalAttrs: {
   # The <nixpkgs/pkgs/servers/x11/xorg/builder.sh> builder must be used, or
   # Failed to load armsoc_drv.so: undefined symbol: "exaDriverAlloc"
   builder = lib.elemAt xorg.xf86videofbdev.args 1;
-  hardeningDisable = [ "bindnow" "relro" ];
+  hardeningDisable = [
+    "bindnow"
+    "relro"
+  ];
   strictDeps = true;
 
   src = fetchFromGitLab {

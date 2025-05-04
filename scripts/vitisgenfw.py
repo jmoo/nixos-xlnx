@@ -19,13 +19,8 @@ now = datetime.datetime.now().strftime("%Y%m%d%I%M%S")
 dt_workspace = f'/tmp/vitisgenfw_dt_{now}/'
 fsbl_workspace = f'/tmp/vitisgenfw_fsbl_{now}/'
 cachedir = os.environ.get('XDG_CACHE_HOME') or os.path.join(os.environ.get('HOME'), '.cache')
-dtx_repo = os.path.join(cachedir, 'device-tree-xlnx')
+dtx_repo = "@device-tree-xlnx@"
 
-# Device tree
-
-if not os.path.exists(dtx_repo):
-    print('Please clone https://github.com/Xilinx/device-tree-xlnx/ to ~/.cache/device-tree-xlnx!')
-    os.sys.exit(2)
 
 # https://xilinx-wiki.atlassian.net/wiki/spaces/A/pages/18842279/Build+Device+Tree+Blob
 tcl = f"""

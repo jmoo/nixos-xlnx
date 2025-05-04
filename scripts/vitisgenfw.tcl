@@ -69,11 +69,6 @@ proc tmpdir {} {
 	error {failed to find an unused temporary directory name}
 }
 
-if {![file exists $env(HOME)/.cache/device-tree-xlnx]} {
-	puts "Please clone https://github.com/Xilinx/device-tree-xlnx/ to ~/.cache/device-tree-xlnx!"
-	exit 2
-}
-
 if {![info exists target]} {
 
 	exec xsct $argv0 -target "devicetree" -platform $platform $xsa $outdir >@stdout 2>@stderr
@@ -83,7 +78,7 @@ if {![info exists target]} {
 
 	setws [tmpdir]
 
-	createdts -hw $xsa -platform-name devicetree -local-repo $env(HOME)/.cache/device-tree-xlnx
+	createdts -hw $xsa -platform-name devicetree -local-repo @device-tree-xlnx@
 	file copy -force [file join [getws] devicetree hw $xsabase.bit] $outdir/system.bit
 
 	set bspdir [file join [getws] devicetree $arch device_tree_domain bsp]

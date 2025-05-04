@@ -1,0 +1,86 @@
+{
+    "arm-trusted-firmware": {
+        "branch": "master",
+        "description": "ARM Trusted Firmware",
+        "homepage": null,
+        "owner": "Xilinx",
+        "repo": "arm-trusted-firmware",
+        "rev": "xlnx_rebase_v2.10_2024.1",
+        "sha256": "0qyjy7a1pqjqbb8fr7rcnxrlvyzw4bbnbx5n0x2d4nard15lfhaw",
+        "type": "tarball",
+        "url": "https://github.com/Xilinx/arm-trusted-firmware/archive/xlnx_rebase_v2.10_2024.1.tar.gz",
+        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
+    },
+    "bootgen": {
+        "branch": "master",
+        "description": "bootgen source code",
+        "homepage": null,
+        "owner": "Xilinx",
+        "repo": "bootgen",
+        "rev": "xilinx_v2024.1",
+        "sha256": "0zkbz0m9rp02rr3h8wciikc21zqsjxzffdhvbf6kss0z7jm400zy",
+        "type": "tarball",
+        "url": "https://github.com/Xilinx/bootgen/archive/xilinx_v2024.1.tar.gz",
+        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
+    },
+    "embeddedsw": {
+        "branch": "master",
+        "description": "Xilinx Embedded Software (embeddedsw) Development",
+        "homepage": "",
+        "owner": "Xilinx",
+        "repo": "embeddedsw",
+        "rev": "xilinx_v2024.1",
+        "sha256": "1nm7p0rqv2bh84dwg37bfby50s2izh9qjlwrcs1nipjxfdsfs7my",
+        "type": "tarball",
+        "url": "https://github.com/Xilinx/embeddedsw/archive/xilinx_v2024.1.tar.gz",
+        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
+    },
+    "hdmi-modules": {
+        "branch": "master",
+        "description": "Xilinx Soft-IP HDMI Rx/Tx core Linux drivers",
+        "homepage": null,
+        "owner": "Xilinx",
+        "repo": "hdmi-modules",
+        "rev": "xilinx_v2024.1",
+        "sha256": "17niv9z2i6jimw8yzkjk961vax3yqk4q9j56gaaqrry27qphv4b1",
+        "type": "tarball",
+        "url": "https://github.com/Xilinx/hdmi-modules/archive/xilinx_v2024.1.tar.gz",
+        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
+    },
+    "linux-xlnx": {
+        "branch": "master",
+        "description": "The official Linux kernel from Xilinx",
+        "homepage": "",
+        "owner": "Xilinx",
+        "repo": "linux-xlnx",
+        "rev": "xlnx_rebase_v6.6_LTS_2024.1",
+        "sha256": "1bfxd6yxn10awj9zf302na2flrp3ijhr32v6glcy9x223cnlvymm",
+        "type": "tarball",
+        "url": "https://github.com/Xilinx/linux-xlnx/archive/xlnx_rebase_v6.6_LTS_2024.1.tar.gz",
+        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
+    },
+    "u-boot-xlnx": {
+        "branch": "master",
+        "description": "The official Xilinx u-boot repository",
+        "homepage": "",
+        "owner": "Xilinx",
+        "repo": "u-boot-xlnx",
+        "rev": "xlnx_rebase_v2024.01_2024.1",
+        "sha256": "0qgdzg4wvkmsi8hldskpds7bvj4g54g8ddp1k8zq0qzhmiqqx88v",
+        "type": "tarball",
+        "url": "https://github.com/Xilinx/u-boot-xlnx/archive/xlnx_rebase_v2024.01_2024.1.tar.gz",
+        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
+    },
+    "vcu-firmware": {
+        "branch": "master",
+        "description": null,
+        "homepage": null,
+        "owner": "Xilinx",
+        "repo": "vcu-firmware",
+        "rev": "xilinx_v2024.1",
+        "sha256": "036cqzwygmbcrn8hfnhy1b9f18dpkh40rybq5klbql260j89hiiz",
+        "type": "tarball",
+        "url": "https://github.com/Xilinx/vcu-firmware/archive/xilinx_v2024.1.tar.gz",
+        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
+    }
+}
