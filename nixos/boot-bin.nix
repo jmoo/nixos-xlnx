@@ -12,7 +12,7 @@ in
 {
   options.hardware.zynq = {
     platform = lib.mkOption {
-      type = lib.nixos-xlnx.types.xilinxPlatform;
+      type = pkgs.lib.nixos-xlnx.types.xilinxPlatform;
       description = lib.mdDoc ''
         Whether you use Zynq 7000 or Zynq UltraScale+ MPSoC.
       '';
@@ -70,7 +70,7 @@ in
         cfg.platform.fbsl.overrideAttrs (_: {
           inherit (cfg) sdtDir;
         })
-        + "/${cfg.platform.name}_fsbl.elf";
+        + "/${cfg.platform.xilinxPlatform}_fsbl.elf";
       example = lib.literalExpression "./firmware/fsbl_a53.elf";
       description = lib.mdDoc ''
         Path to First Stage Boot Loader.
@@ -81,8 +81,11 @@ in
       type = lib.types.nullOr lib.types.path;
       defaultText = lib.literalMD "generated from {option}`hardware.zynq.sdtDir`";
       default =
-        if cfg.platform.name == "zynqmp" then
-          cfg.platform.pmufw { inherit (cfg) sdtDir; } + "/zynqmp_pmufw.elf"
+        if cfg.platform.xilinxPlatform == "zynqmp" then
+          (cfg.platform.pmufw.overrideAttrs (_: {
+            inherit (cfg) sdtDir;
+          }))
+          + "/zynqmp_pmufw.elf"
         else
           null;
       example = lib.literalExpression "./firmware/pmufw.elf";
@@ -118,10 +121,10 @@ in
                 }
               '';
             }
-            .${cfg.platform.name};
+            .${cfg.platform.xilinxPlatform};
         in
         pkgs.runCommand "BOOT.BIN" { nativeBuildInputs = [ cfg.platform.bootgen ]; } ''
-          bootgen -image ${pkgs.writeText "bootgen.bif" bif} -arch ${cfg.platform.name} -w -o $out
+          bootgen -image ${pkgs.writeText "bootgen.bif" bif} -arch ${cfg.platform.xilinxPlatform} -w -o $out
         '';
       description = lib.mdDoc ''
         You can build BOOT.BIN without building the whole system using
@@ -133,7 +136,7 @@ in
   config = {
     assertions = [
       {
-        assertion = cfg.platform.name == "zynqmp" -> cfg.pmufw != null;
+        assertion = cfg.platform.xilinxPlatform == "zynqmp" -> cfg.pmufw != null;
         message = "hardware.zynq.pmufw is not optional on ZynqMP.";
       }
     ];

@@ -13,17 +13,29 @@
         mapFlattenAttrsRec
         ;
 
-      inherit (nixpkgs.lib) mapAttrs;
+      inherit (nixpkgs.lib) mapAttrs mapAttrs';
     in
     {
       inherit lib;
 
-      checks = eachSystem (
-        system:
-        nixpkgs.lib.mapAttrs' (name: value: {
-          name = "build-${name}";
-          inherit value;
-        }) self.packages.${system}
+      checks = (
+        eachSystem (
+          system:
+          (mapAttrs' (name: value: {
+            name = "build-${name}";
+            inherit value;
+          }) self.packages.${system})
+
+          # // (nixpkgs.lib.optionalAttrs (system == "aarch64-linux") {
+          #   build-test-kr260-2024_2-aarch64-native =
+          #     self.nixosConfigurations.test-kr260-2024_2-aarch64-native.config.system.build.toplevel;
+          # })
+
+          # // (nixpkgs.lib.optionalAttrs (system != "aarch64-linux") {
+          #   build-test-kr260-2024_2-aarch64-emu =
+          #     self.nixosConfigurations.test-kr260-2024_2-aarch64-native.config.system.build.toplevel;
+          # })
+        )
       );
 
       devShells = eachPackageSet (pkgs: {
@@ -38,6 +50,17 @@
           config.allowUnfree = true;
         }
       );
+
+      nixosConfigurations = {
+        test-kr260-2024_2-aarch64-native = nixpkgs.lib.nixosSystem {
+          modules = [
+            ./test/kr260-2024_2/nixos.nix
+            {
+              nixpkgs.overlays = [ self.overlays.default ];
+            }
+          ];
+        };
+      };
 
       nixosModules.default = _: {
         imports = [ ./sd-image.nix ];

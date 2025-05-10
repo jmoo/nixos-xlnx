@@ -81,13 +81,7 @@ rec {
     xilinxPlatform = (nixpkgs.lib.types.attrsOf nixpkgs.lib.types.unspecified) // {
       name = "xilinxPlatform";
       description = "Platform scope from `pkgs.nixos-xlnx.xilinx-platforms";
-      check =
-        x:
-        (isAttrs x)
-        && elem x [
-          "zynq"
-          "zynqmp"
-        ];
+      check = x: (isAttrs x) && hasAttr "xilinxPlatform" x;
     };
   };
 }

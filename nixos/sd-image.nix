@@ -4,7 +4,7 @@
   imports = [
     "${modulesPath}/profiles/base.nix"
     "${modulesPath}/installer/sd-card/sd-image.nix"
-    ./nixos.nix
+    ./default.nix
   ];
   disabledModules = [ "${modulesPath}/profiles/all-hardware.nix" ];
 

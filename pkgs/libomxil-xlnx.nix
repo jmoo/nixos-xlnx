@@ -16,23 +16,15 @@ stdenv.mkDerivation (
     EXTERNAL_INCLUDE = "${libvcu-xlnx}/include";
     EXTERNAL_LIB = "${libvcu-xlnx}/lib";
 
-    installPhase =
-      ''
-        runHook preInstall
-        install -Dm444 omx_header/*.h -t $out/include/vcu-omx-il/
-        install -Dm555 bin/libOMX.allegro.{core,video_{en,de}coder}.so -t $out/lib/
-        for f in $out/lib/*.so; do ln -s "$f" "$f".1; done
-      ''
-      + lib.optionalString (lib.versionAtLeast finalAttrs.version "2023.2") ''
-        install -Dm555 bin/omx_encoder.exe -T $out/bin/omx_encoder
-        install -Dm555 bin/omx_decoder.exe -T $out/bin/omx_encoder
-      ''
-      + lib.optionalString (lib.versionOlder finalAttrs.version "2023.2") ''
-        install -Dm555 bin/omx_{en,de}coder -t $out/bin/
-      ''
-      + ''
-        runHook postInstall
-      '';
+    installPhase = ''
+      runHook preInstall
+      install -Dm444 omx_header/*.h -t $out/include/vcu-omx-il/
+      install -Dm555 bin/libOMX.allegro.{core,video_{en,de}coder}.so -t $out/lib/
+      for f in $out/lib/*.so; do ln -s "$f" "$f".1; done
+      install -Dm555 bin/omx_encoder.exe -T $out/bin/omx_encoder
+      install -Dm555 bin/omx_decoder.exe -T $out/bin/omx_encoder
+      runHook postInstall
+    '';
 
     meta = with lib; {
       description = "OpenMAX Integration Layer implementation for Xilinx Zynq UltraScale+ VCU";

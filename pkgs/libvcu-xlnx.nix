@@ -10,22 +10,15 @@ stdenv.mkDerivation (
   lib.nixos-xlnx.withSource xilinxSources.vcu-ctrl-sw {
 
     installTargets = [ "install_headers" ];
-    installFlags =
-      [
-        "PREFIX=$(out)"
-      ]
-      ++ lib.optionals (lib.versionAtLeast finalAttrs.version "2023.2") [
-        "INSTALL_PATH=$(out)/bin"
-      ];
+    installFlags = [
+      "PREFIX=$out"
+      "INSTALL_PATH=$out/bin"
+    ];
 
-    postInstall =
-      ''
-        for f in $out/lib/*.so; do ln -s "$f" "$f".0; done
-        install -Dm755 bin/liballegro_{en,de}code.so -t $out/lib/
-      ''
-      + lib.optionalString (lib.versionOlder finalAttrs.version "2023.2") ''
-        install -Dm755 bin/ctrlsw_{en,de}coder -t $out/bin/
-      '';
+    postInstall = ''
+      for f in $out/lib/*.so; do ln -s "$f" "$f".0; done
+      install -Dm755 bin/liballegro_{en,de}code.so -t $out/lib/
+    '';
 
     meta = with lib; {
       description = "Xilinx Zynq UltraScale+ VCU control software";
