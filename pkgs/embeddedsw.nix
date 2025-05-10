@@ -18,9 +18,8 @@ let
 
         nativeBuildInputs = [
           (buildPackages.python3.withPackages (p: [
-            buildPackages.python-lopper
+            p.lopper
             p.pyyaml
-            # ModuleNotFoundError: No module named 'distutils'
             p.setuptools
             p.libfdt
           ]))

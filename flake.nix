@@ -12,6 +12,8 @@
         eachSystem
         mapFlattenAttrsRec
         ;
+
+      inherit (nixpkgs.lib) mapAttrs;
     in
     {
       inherit lib;
@@ -25,7 +27,7 @@
       );
 
       devShells = eachPackageSet (pkgs: {
-        default = pkgs.callPackage ./shell.nix { };
+        default = pkgs.nixos-xlnx.callPackage ./shell.nix { };
       });
 
       legacyPackages = eachSystem (
@@ -47,27 +49,40 @@
       packages = eachSystem (
         system:
         let
-          mkNixosXlnxPackages =
+          mkPackages =
             version:
-            {
-              # zynq-armvl7-cross =
-              #   self.legacyPackages.${system}.pkgsCross.armv7l-hf-multiplatform.${version}.xilinx-platforms.zynq;
-            }
-            // (
-              if system == "aarch64-linux" then
+            mapAttrs
+              (
+                _: platform:
+                platform.callPackage (
+                  {
+                    libmali-xlnx,
+                    libomxil-xlnx,
+                    libvcu-xlnx,
+                  }@extras:
+                  platform // extras
+                ) { }
+              )
+              (
                 {
-                  zynqmp = self.legacyPackages.${system}.${version}.xilinx-platforms.zynqmp;
+                  # zynq-armvl7-cross =
+                  #   self.legacyPackages.${system}.pkgsCross.armv7l-hf-multiplatform.${version}.xilinx-platforms.zynq;
                 }
-              else
-                {
-                  zynqmp-aarch64-emu = self.legacyPackages.aarch64-linux.${version}.xilinx-platforms.zynqmp;
-                  # zynqmp-aarch64-cross =
-                  #   mkPlatformPackages
-                  #     self.legacyPackages.${system}.pkgsCross.aarch64-multiplatform.${version}.xilinx-platforms.zynqmp;
-                }
-            );
+                // (
+                  if system == "aarch64-linux" then
+                    {
+                      zynqmp = self.legacyPackages.${system}.${version}.xilinx-platforms.zynqmp;
+                    }
+                  else
+                    {
+                      zynqmp-aarch64-emu = self.legacyPackages.aarch64-linux.${version}.xilinx-platforms.zynqmp;
+                      # zynqmp-aarch64-cross =
+                      #     self.legacyPackages.${system}.pkgsCross.aarch64-multiplatform.${version}.xilinx-platforms.zynqmp;
+                    }
+                )
+              );
         in
-        nixpkgs.lib.filterAttrs
+        (nixpkgs.lib.filterAttrs
           (
             _: value:
             let
@@ -87,9 +102,13 @@
                 inherit value;
               })
               {
-                nixos-xlnx-2024_1 = mkNixosXlnxPackages "nixos-xlnx-2024_1";
+                nixos-xlnx-2024_1 = mkPackages "nixos-xlnx-2024_1";
               }
           )
+        )
+        // {
+          lopper = self.legacyPackages.${system}.python3Packages.lopper;
+        }
       );
     };
 }

@@ -71,14 +71,7 @@ rec {
   sourcesForPlatform =
     platform:
     let
-      sources = (
-        platform.callPackage (
-          { xilinxSources, xilinxVersion }:
-          {
-            inherit xilinxSources xilinxVersion;
-          }
-        ) { }
-      );
+      sources = (platform.callPackage ({ xilinxSources, xilinxVersion }@sources: sources) { });
     in
     {
       inherit (sources) xilinxSources xilinxVersion;

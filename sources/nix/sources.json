@@ -59,6 +59,13 @@
         "url": "https://github.com/Xilinx/embeddedsw/archive/xilinx_v2024.1.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
+    "gst-omx": {
+        "sha256": "0fl6d5aq9gg1q3zb5ks76ad42fwy5grfj4ngqg196i9k3hrw4lbg",
+        "type": "file",
+        "url": "https://gstreamer.freedesktop.org/src/gst-omx/gst-omx-1.22.3.tar.xz",
+        "url_template": "https://gstreamer.freedesktop.org/src/gst-omx/gst-omx-<version>.tar.xz",
+        "version": "1.22.3"
+    },
     "hdmi-modules": {
         "branch": "master",
         "description": "Xilinx Soft-IP HDMI Rx/Tx core Linux drivers",
@@ -90,6 +97,18 @@
         "url_template": "https://developer.arm.com/-/media/Files/downloads/mali-drivers/kernel/mali-utgard-gpu/DX910-SW-99002-<version>.tgz",
         "version": "r9p0-01rel0"
     },
+    "mali-userspace-binaries": {
+        "branch": "master",
+        "description": null,
+        "homepage": null,
+        "owner": "Xilinx",
+        "repo": "mali-userspace-binaries",
+        "rev": "xilinx_v2024.1",
+        "sha256": "15dm3aqvyrs5ymnzscyqri5svny1q88waq58byay849a2bf4qhn5",
+        "type": "tarball",
+        "url": "https://github.com/Xilinx/mali-userspace-binaries/archive/xilinx_v2024.1.tar.gz",
+        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
+    },
     "software-prototypes": {
         "branch": "master",
         "description": null,
@@ -114,6 +133,18 @@
         "url": "https://github.com/Xilinx/u-boot-xlnx/archive/xlnx_rebase_v2024.01_2024.1.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
+    "vcu-ctrl-sw": {
+        "branch": "master",
+        "description": null,
+        "homepage": null,
+        "owner": "Xilinx",
+        "repo": "vcu-ctrl-sw",
+        "rev": "xilinx_v2024.1",
+        "sha256": "1hgfggd9dv3a8yv8gjklyz399r567dnk8r1a7ipi3vaj9ckg7dmw",
+        "type": "tarball",
+        "url": "https://github.com/Xilinx/vcu-ctrl-sw/archive/xilinx_v2024.1.tar.gz",
+        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
+    },
     "vcu-firmware": {
         "branch": "master",
         "description": null,
@@ -136,6 +167,18 @@
         "sha256": "0g6bcgaslx9mrxryh24h05iixih645wv23brzvcc33g0zasaa7s1",
         "type": "tarball",
         "url": "https://github.com/Xilinx/vcu-modules/archive/xilinx_v2024.1.tar.gz",
+        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
+    },
+    "vcu-omx-il": {
+        "branch": "master",
+        "description": null,
+        "homepage": null,
+        "owner": "Xilinx",
+        "repo": "vcu-omx-il",
+        "rev": "xilinx_v2024.1",
+        "sha256": "1c9b00251y57z2xpx0mk5gnlkjbi09vqh9wrrr6ix4kzclbz984s",
+        "type": "tarball",
+        "url": "https://github.com/Xilinx/vcu-omx-il/archive/xilinx_v2024.1.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "xilinx_axidma": {

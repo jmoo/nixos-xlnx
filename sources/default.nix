@@ -6,6 +6,28 @@ let
 in
 sources
 // {
+  xf86-video-armsoc =
+    (pkgs.fetchFromGitLab {
+      domain = "gitlab.freedesktop.org";
+      group = "xorg";
+      owner = "driver";
+      repo = "xf86-video-armsoc";
+      rev = "1.4.1";
+      hash = "sha256-iIfFa/hKKlhkQGHsw74WgJ/+kj7crWo+iQQuwaTK2Lg=";
+    })
+    // {
+      patches = [
+        (pkgs.fetchpatch {
+          url = "https://git.yoctoproject.org/meta-xilinx/plain/meta-xilinx-core/dynamic-layers/openembedded-layer/recipes-graphics/xorg-driver/xf86-video-armsoc/0001-armsoc_driver.c-Bypass-the-exa-layer-to-free-the-roo.patch?h=fd359f0cf8973aff3fa46cd43111e093fbad26a1";
+          hash = "sha256-KYGjU41MV79O6nG+bNXO5OSRrD2mI/amJpG9iFvhNZ8=";
+        })
+        (pkgs.fetchpatch {
+          url = "https://git.yoctoproject.org/meta-xilinx/plain/meta-xilinx-core/dynamic-layers/openembedded-layer/recipes-graphics/xorg-driver/xf86-video-armsoc/0001-src-drmmode_xilinx-Add-the-dumb-gem-support-for-Xili.patch?h=fd359f0cf8973aff3fa46cd43111e093fbad26a1";
+          hash = "sha256-ZbZivnv+rqHScl1YLS8ICW7bb1xMX1/DSJ2h+EI7yH4=";
+        })
+      ];
+    };
+
   xilinx_axidma = sources.xilinx_axidma // {
     patches = pkgs.fetchpatch {
       url = "https://github.com/andrewvoznytsa/xilinx_axidma/commit/a87240b08b61f5c8f8964318f73d249adcc6e9ce.patch";

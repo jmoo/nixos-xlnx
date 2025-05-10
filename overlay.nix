@@ -12,7 +12,7 @@ let
     xlnx-hdmi-modules = kfinal.callPackage ./pkgs/kernel-packages/hdmi-modules.nix overrides;
     xlnx-dp-modules = kfinal.callPackage ./pkgs/kernel-packages/dp-modules.nix overrides;
     xlnx-vcu-modules = kfinal.callPackage ./pkgs/kernel-packages/vcu-modules.nix overrides;
-    
+
     # # Broken:
     # xlnx-mali-modules = kfinal.callPackage ./pkgs/kernel-packages/mali-modules.nix overrides;
     # xlnx-dma-proxy = kfinal.callPackage ./pkgs/kernel-packages/dma-proxy.nix overrides;
@@ -22,9 +22,29 @@ let
 
   buildNixosXlnx =
     (final.lib.makeScope final.newScope (nixos-xlnx: {
+
+      libmali-xlnx = nixos-xlnx.callPackage ./pkgs/libmali-xlnx.nix { };
+      libomxil-xlnx = nixos-xlnx.callPackage ./pkgs/libomxil-xlnx.nix { };
+      libvcu-xlnx = nixos-xlnx.callPackage ./pkgs/libvcu-xlnx.nix { };
+
+      gst_all_1 = final.gst_all_1 // {
+        gst-omx-zynqultrascaleplus =
+          (nixos-xlnx.callPackage ./pkgs/gst-omx.nix { omxTarget = "zynqultrascaleplus"; }).overrideAttrs
+            (super: {
+              mesonFlags = super.mesonFlags ++ [
+                (prev.lib.mesonOption "header_path" "${nixos-xlnx.libomxil-xlnx}/include/vcu-omx-il")
+              ];
+              postPatch =
+                super.postPatch
+                + ''
+                  substituteInPlace config/zynqultrascaleplus/gstomx.conf --replace "/usr" "${nixos-xlnx.libomxil-xlnx}"
+                '';
+            });
+      };
+
       xilinx-platforms = {
         zynq = final.lib.makeScope nixos-xlnx.newScope (zynq: {
-          name = "zynq";
+          xilinxPlatform = "zynq";
 
           bootgen = zynq.callPackage ./pkgs/xilinx-bootgen.nix { };
 
@@ -45,7 +65,7 @@ let
         });
 
         zynqmp = final.lib.makeScope nixos-xlnx.newScope (zynqmp: {
-          name = "zynqmp";
+          xilinxPlatform = "zynqmp";
 
           armTrustedFirmware = zynqmp.callPackage ./pkgs/arm-trusted-firmware-xlnx.nix { };
 
@@ -78,7 +98,6 @@ let
         xf86videoarmsoc = nixos-xlnx.callPackage ./pkgs/xf86-video-armsoc.nix { };
       };
     })).overrideScope;
-
 in
 {
   inherit buildNixosXlnx lib;
@@ -101,24 +120,9 @@ in
     }
   );
 
-  libmali-xlnx = prev.callPackages ./pkgs/libmali-xlnx.nix { };
-  libomxil-xlnx = prev.callPackage ./pkgs/libomxil-xlnx.nix { };
-  libvcu-xlnx = prev.callPackage ./pkgs/libvcu-xlnx.nix { };
-
-  gst_all_1 = prev.gst_all_1 // {
-    gst-omx-zynqultrascaleplus =
-      (prev.callPackage ./pkgs/gst-omx.nix { omxTarget = "zynqultrascaleplus"; }).overrideAttrs
-        (super: {
-          mesonFlags = super.mesonFlags ++ [
-            (prev.lib.mesonOption "header_path" "${final.libomxil-xlnx}/include/vcu-omx-il")
-          ];
-          postPatch =
-            super.postPatch
-            + ''
-              substituteInPlace config/zynqultrascaleplus/gstomx.conf --replace "/usr" "${final.libomxil-xlnx}"
-            '';
-        });
-  };
-
-  python-lopper = prev.python3Packages.callPackage ./pkgs/lopper.nix { };
+  pythonPackagesExtensions = [
+    (final: _: {
+      lopper = final.callPackage ./pkgs/lopper.nix { };
+    })
+  ];
 }
