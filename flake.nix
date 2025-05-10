@@ -44,7 +44,7 @@
         nixpkgs.overlays = nixpkgs.lib.attrValues self.overlays;
       };
 
-      overlays.default = import ./overlay.nix inputs;
+      overlays.default = import ./overlays/top-level.nix inputs;
 
       packages = eachSystem (
         system:
