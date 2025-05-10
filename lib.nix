@@ -1,6 +1,7 @@
 { nixpkgs, self, ... }:
 let
   inherit (nixpkgs.lib)
+    hasAttr
     listToAttrs
     isDerivation
     concatLists
@@ -50,7 +51,16 @@ rec {
     src: drv:
     {
       inherit src;
-      version = src.rev;
+
+      version =
+        if hasAttr "version" src then
+          src.version
+        else if hasAttr "rev" src then
+          src.rev
+        else
+          abort "No version or rev for src";
+
+      patches = if hasAttr "patches" src then src.patches else [ ];
     }
     // drv;
 

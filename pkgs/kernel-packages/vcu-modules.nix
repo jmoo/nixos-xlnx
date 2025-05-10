@@ -9,22 +9,14 @@
 
 stdenv.mkDerivation (
   finalAttrs:
-  (lib.nixos-xlnx.withSource xilinxSources.hdmi-modules {
-    name = "xlnx-hdmi-modules-${kernel.version}-${finalAttrs.version}";
+  (lib.nixos-xlnx.withSource xilinxSources.vcu-modules {
+    name = "xlnx-vcu-modules-${kernel.version}-${finalAttrs.version}";
     version = xilinxVersion;
-    
+
     nativeBuildInputs = kernel.moduleBuildDependencies ++ [ ];
 
     makeFlags = kernel.makeFlags ++ [
       "KERNEL_SRC=${kernel.dev}/lib/modules/${kernel.modDirVersion}/build"
-    ];
-
-    # hdmi/xilinx_drm_hdmi.c #includes drivers/gpu/drm/xlnx/xlnx_bridge.h
-    # But driver specific headers are removed in Nixpkgs' kernel builder
-    # So a reference to kernel.src is needed
-    env.NIX_CFLAGS_COMPILE = toString [
-      "-isystem"
-      "${kernel.src}/drivers"
     ];
 
     installTargets = [ "modules_install" ];
@@ -33,8 +25,8 @@ stdenv.mkDerivation (
     enableParallelBuilding = true;
 
     meta = {
-      description = "Out-of-tree Linux modules for Xilinx HDMI IP cores";
-      homepage = "https://xilinx-wiki.atlassian.net/wiki/spaces/A/pages/18842136/Xilinx+DRM+KMS+HDMI-Tx+Driver";
+      description = "Out-of-tree Linux modules for Xilinx Zynq UltraScale+ Video Codec Unit (VCU)";
+      homepage = "https://xilinx-wiki.atlassian.net/wiki/spaces/A/pages/18842546/Xilinx+Zynq+UltraScale+MPSoC+Video+Codec+Unit";
       license = lib.licenses.gpl2Plus;
       platforms = lib.platforms.linux;
       maintainers = with lib.maintainers; [ chuangzhu ];

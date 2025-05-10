@@ -11,11 +11,11 @@ let
   kernelPackages = overrides: kfinal: _: {
     xlnx-hdmi-modules = kfinal.callPackage ./pkgs/kernel-packages/hdmi-modules.nix overrides;
     xlnx-dp-modules = kfinal.callPackage ./pkgs/kernel-packages/dp-modules.nix overrides;
-    # xlnx-vcu-modules = kfinal.callPackage ./pkgs/vcu-modules.nix overrides;
-    # mali-module-xlnx = kfinal.callPackage ./pkgs/mali-module-xlnx.nix overrides;
-    # xlnx-dma-proxy = kfinal.callPackage ./pkgs/dma-proxy.nix overrides;
-    # bperez77-xilinx-axidma = kfinal.callPackage ./pkgs/xilinx-axidma.nix overrides;
-    # jacobfeder-axisfifo = kfinal.callPackage ./pkgs/axisfifo.nix overrides;
+    xlnx-vcu-modules = kfinal.callPackage ./pkgs/kernel-packages/vcu-modules.nix overrides;
+    # xlnx-mali-modules = kfinal.callPackage ./pkgs/kernel-packages/mali-modules.nix overrides;
+    # xlnx-dma-proxy = kfinal.callPackage ./pkgs/kernel-packages/dma-proxy.nix overrides;
+    # bperez77-xilinx-axidma = kfinal.callPackage ./pkgs/kernel-packages/xilinx-axidma.nix overrides;
+    # jacobfeder-axisfifo = kfinal.callPackage ./pkgs/kernel-packages/axisfifo.nix overrides;
   };
 
   buildNixosXlnx =

@@ -11,6 +11,18 @@
         "url": "https://github.com/Xilinx/arm-trusted-firmware/archive/xlnx_rebase_v2.10_2024.1.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
+    "axisfifo": {
+        "branch": "master",
+        "description": " Zynq SoC Linux kernel driver for Xilinx AXI-Stream FIFO IP",
+        "homepage": null,
+        "owner": "jacobfeder",
+        "repo": "axisfifo",
+        "rev": "69375f12c2393c1c982a05b14e2a9515ad3d6b67",
+        "sha256": "1xcbcv2aa5v8314wh5rzp5nkszkh19il1v6sjdjrgxw8d279kk2l",
+        "type": "tarball",
+        "url": "https://github.com/jacobfeder/axisfifo/archive/69375f12c2393c1c982a05b14e2a9515ad3d6b67.tar.gz",
+        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
+    },
     "bootgen": {
         "branch": "master",
         "description": "bootgen source code",
@@ -71,6 +83,25 @@
         "url": "https://github.com/Xilinx/linux-xlnx/archive/xlnx_rebase_v6.6_LTS_2024.1.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
+    "mali-modules": {
+        "sha256": "1v1sfngymjnhby36hw7bry5imfmlc0x0m1cjcqa35w0dl7lr9xjw",
+        "type": "tarball",
+        "url": "https://developer.arm.com/-/media/Files/downloads/mali-drivers/kernel/mali-utgard-gpu/DX910-SW-99002-r9p0-01rel0.tgz",
+        "url_template": "https://developer.arm.com/-/media/Files/downloads/mali-drivers/kernel/mali-utgard-gpu/DX910-SW-99002-<version>.tgz",
+        "version": "r9p0-01rel0"
+    },
+    "software-prototypes": {
+        "branch": "master",
+        "description": null,
+        "homepage": null,
+        "owner": "Xilinx-Wiki-Projects",
+        "repo": "software-prototypes",
+        "rev": "9bba8fb105ef2150fafd6d7708d259068f597868",
+        "sha256": "0m1kng805v193nykw8sg9vh4ibxijikszzrvdnskbg7v89v19yz1",
+        "type": "tarball",
+        "url": "https://github.com/Xilinx-Wiki-Projects/software-prototypes/archive/9bba8fb105ef2150fafd6d7708d259068f597868.tar.gz",
+        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
+    },
     "u-boot-xlnx": {
         "branch": "master",
         "description": "The official Xilinx u-boot repository",
@@ -93,6 +124,30 @@
         "sha256": "036cqzwygmbcrn8hfnhy1b9f18dpkh40rybq5klbql260j89hiiz",
         "type": "tarball",
         "url": "https://github.com/Xilinx/vcu-firmware/archive/xilinx_v2024.1.tar.gz",
+        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
+    },
+    "vcu-modules": {
+        "branch": "master",
+        "description": "Video Codec Unit (VCU) Linux out-of-tree modules for Yocto.",
+        "homepage": "",
+        "owner": "Xilinx",
+        "repo": "vcu-modules",
+        "rev": "xilinx_v2024.1",
+        "sha256": "0g6bcgaslx9mrxryh24h05iixih645wv23brzvcc33g0zasaa7s1",
+        "type": "tarball",
+        "url": "https://github.com/Xilinx/vcu-modules/archive/xilinx_v2024.1.tar.gz",
+        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
+    },
+    "xilinx_axidma": {
+        "branch": "master",
+        "description": "A zero-copy Linux driver and a userspace interface library for Xilinx's AXI DMA and VDMA IP blocks. These serve as bridges for communication between the processing system and FPGA programmable logic fabric, through one of the DMA ports on the Zynq processing system. Distributed under the MIT License.",
+        "homepage": "",
+        "owner": "bperez77",
+        "repo": "xilinx_axidma",
+        "rev": "42ed91e83bc4da1e29149b2be0c6a6b8f4549222",
+        "sha256": "11ijnwpa43hk5pr97j4a9yj84lfx0jsfwi5qm6plv4icnq47nrrj",
+        "type": "tarball",
+        "url": "https://github.com/bperez77/xilinx_axidma/archive/42ed91e83bc4da1e29149b2be0c6a6b8f4549222.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     }
 }
