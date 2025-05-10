@@ -26,6 +26,10 @@ stdenvNoCC.mkDerivation (
       license = licenses.unfreeRedistributableFirmware;
       sourceProvenance = with sourceTypes; [ binaryFirmware ];
       maintainers = with maintainers; [ chuangzhu ];
+      broken = false;
+      nixos-xlnx = {
+        inherit xilinxVersion;
+      };
     };
   }
 )

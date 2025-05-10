@@ -1,6 +1,6 @@
 inputs: final: prev:
 let
-  inherit (lib.nixos-xlnx) overrideSource;
+  inherit (lib.nixos-xlnx) overrideSource sourcesForPlatform;
 
   lib = prev.lib.extend (
     _: _: {
@@ -8,39 +8,38 @@ let
     }
   );
 
-  kernelPackages = kfinal: _: {
-    xilinx-hdmi-modules = kfinal.callPackage ./pkgs/hdmi-modules.nix { };
-    xlnx-dp-modules = kfinal.callPackage ./pkgs/dp-modules.nix { };
-    xlnx-vcu-modules = kfinal.callPackage ./pkgs/vcu-modules.nix { };
-    mali-module-xlnx = kfinal.callPackage ./pkgs/mali-module-xlnx.nix { };
-    xlnx-dma-proxy = kfinal.callPackage ./pkgs/dma-proxy.nix { };
-    bperez77-xilinx-axidma = kfinal.callPackage ./pkgs/xilinx-axidma.nix { };
-    jacobfeder-axisfifo = kfinal.callPackage ./pkgs/axisfifo.nix { };
+  kernelPackages = overrides: kfinal: _: {
+    xlnx-hdmi-modules = kfinal.callPackage ./pkgs/kernel-packages/hdmi-modules.nix overrides;
+    xlnx-dp-modules = kfinal.callPackage ./pkgs/kernel-packages/dp-modules.nix overrides;
+    # xlnx-vcu-modules = kfinal.callPackage ./pkgs/vcu-modules.nix overrides;
+    # mali-module-xlnx = kfinal.callPackage ./pkgs/mali-module-xlnx.nix overrides;
+    # xlnx-dma-proxy = kfinal.callPackage ./pkgs/dma-proxy.nix overrides;
+    # bperez77-xilinx-axidma = kfinal.callPackage ./pkgs/xilinx-axidma.nix overrides;
+    # jacobfeder-axisfifo = kfinal.callPackage ./pkgs/axisfifo.nix overrides;
   };
 
   buildNixosXlnx =
     (final.lib.makeScope final.newScope (nixos-xlnx: {
-      xilinx-bootgen = overrideSource nixos-xlnx.xilinxSources.bootgen final.xilinx-bootgen;
-
       xilinx-platforms = {
         zynq = final.lib.makeScope nixos-xlnx.newScope (zynq: {
           name = "zynq";
 
-          bootgen = nixos-xlnx.xilinx-bootgen;
+          bootgen = zynq.callPackage ./pkgs/xilinx-bootgen.nix { };
 
           kernel = zynq.callPackage ./pkgs/linux-xlnx {
             defconfig = "xilinx_zynq_defconfig";
             kernelPatches = [ ];
           };
 
-          kernelPackages = (final.linuxKernel.packagesFor zynq.kernel).extend kernelPackages;
+          kernelPackages = (final.linuxKernel.packagesFor zynq.kernel).extend (
+            kernelPackages (sourcesForPlatform zynq)
+          );
 
           uboot = zynq.callPackage ./pkgs/u-boot.nix { platform = "zynq"; };
 
           fbsl =
-            (final.pkgsCross.aarch64-embedded.callPackages ./pkgs/embeddedsw.nix {
-              xilinxSources = nixos-xlnx.xilinxSources;
-            }).zynq-fsbl;
+            (final.pkgsCross.aarch64-embedded.callPackages ./pkgs/embeddedsw.nix (sourcesForPlatform zynq))
+            .zynq-fsbl;
         });
 
         zynqmp = final.lib.makeScope nixos-xlnx.newScope (zynqmp: {
@@ -48,30 +47,30 @@ let
 
           armTrustedFirmware = zynqmp.callPackage ./pkgs/arm-trusted-firmware-xlnx.nix { };
 
-          bootgen = nixos-xlnx.xilinx-bootgen;
+          bootgen = zynqmp.callPackage ./pkgs/xilinx-bootgen.nix { };
 
           kernel = zynqmp.callPackage ./pkgs/linux-xlnx {
             defconfig = "xilinx_defconfig";
             kernelPatches = [ ];
           };
 
-          kernelPackages = (final.linuxKernel.packagesFor zynqmp.kernel).extend kernelPackages;
+          kernelPackages = (final.linuxKernel.packagesFor zynqmp.kernel).extend (
+            kernelPackages (sourcesForPlatform zynqmp)
+          );
 
           uboot = zynqmp.callPackage ./pkgs/u-boot.nix { platform = "zynqmp"; };
 
           fbsl =
-            (final.pkgsCross.aarch64-embedded.callPackages ./pkgs/embeddedsw.nix {
-              xilinxSources = nixos-xlnx.xilinxSources;
-            }).zynqmp-fsbl;
+            (final.pkgsCross.aarch64-embedded.callPackages ./pkgs/embeddedsw.nix (sourcesForPlatform zynqmp))
+            .zynqmp-fsbl;
 
           pmufw =
-            (final.pkgsCross.microblaze-embedded.callPackages ./pkgs/embeddedsw.nix {
-              xilinxSources = nixos-xlnx.xilinxSources;
-            }).zynqmp-pmufw;
+            (final.pkgsCross.microblaze-embedded.callPackages ./pkgs/embeddedsw.nix (sourcesForPlatform zynqmp))
+            .zynqmp-pmufw;
+
+          vcu-firmware = zynqmp.callPackage ./pkgs/vcu-firmware.nix { };
         });
       };
-
-      xilinx-vcu-firmware = nixos-xlnx.callPackage ./pkgs/vcu-firmware.nix { };
 
       xorg = final.xorg // {
         xf86videoarmsoc = nixos-xlnx.callPackage ./pkgs/xf86-video-armsoc.nix { };

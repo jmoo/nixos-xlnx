@@ -66,7 +66,11 @@ in
     fsbl = lib.mkOption {
       type = lib.types.path;
       defaultText = lib.literalMD "generated from {option}`hardware.zynq.sdtDir`";
-      default = cfg.platform.fbsl.override { inherit (cfg) sdtDir; } + "/${cfg.platform.name}_fsbl.elf";
+      default =
+        cfg.platform.fbsl.overrideAttrs (_: {
+          inherit (cfg) sdtDir;
+        })
+        + "/${cfg.platform.name}_fsbl.elf";
       example = lib.literalExpression "./firmware/fsbl_a53.elf";
       description = lib.mdDoc ''
         Path to First Stage Boot Loader.

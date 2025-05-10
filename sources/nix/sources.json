@@ -23,6 +23,18 @@
         "url": "https://github.com/Xilinx/bootgen/archive/xilinx_v2024.1.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
+    "dp-modules": {
+        "branch": "master",
+        "description": null,
+        "homepage": null,
+        "owner": "Xilinx",
+        "repo": "dp-modules",
+        "rev": "xilinx_v2024.1",
+        "sha256": "156vh3vsj8xx16s2601qsdwnncbs2w4rn8d9psdqglnnrvfvqv5r",
+        "type": "tarball",
+        "url": "https://github.com/Xilinx/dp-modules/archive/xilinx_v2024.1.tar.gz",
+        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
+    },
     "embeddedsw": {
         "branch": "master",
         "description": "Xilinx Embedded Software (embeddedsw) Development",

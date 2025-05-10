@@ -3,13 +3,14 @@
   stdenv,
   kernel,
   xilinxSources,
+  xilinxVersion,
   ...
 }:
 
 stdenv.mkDerivation (
   finalAttrs:
   (lib.nixos-xlnx.withSource xilinxSources.hdmi-modules {
-    name = "xilinx-hdmi-modules-${kernel.version}-${finalAttrs.version}";
+    name = "xlnx-hdmi-modules-${kernel.version}-${finalAttrs.version}";
 
     nativeBuildInputs = kernel.moduleBuildDependencies ++ [ ];
 
@@ -36,6 +37,10 @@ stdenv.mkDerivation (
       license = lib.licenses.gpl2Plus;
       platforms = lib.platforms.linux;
       maintainers = with lib.maintainers; [ chuangzhu ];
+      broken = false;
+      nixos-xlnx = {
+        inherit xilinxVersion;
+      };
     };
   })
 )

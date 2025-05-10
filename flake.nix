@@ -22,7 +22,6 @@
           name = "build-${name}";
           inherit value;
         }) self.packages.${system}
-
       );
 
       devShells = eachPackageSet (pkgs: {
@@ -48,45 +47,49 @@
       packages = eachSystem (
         system:
         let
-          mkZynqPackages = zynq: {
-            inherit (zynq) kernel;
-          };
-
-          mkZynqmpPackages = zynqmp: {
-            inherit (zynqmp) bootgen kernel;
-          };
-
           mkNixosXlnxPackages =
             version:
             {
-              zynq-armvl7-cross =
-                mkZynqPackages
-                  self.legacyPackages.${system}.pkgsCross.armv7l-hf-multiplatform.${version}.xilinx-platforms.zynq;
+              # zynq-armvl7-cross =
+              #   self.legacyPackages.${system}.pkgsCross.armv7l-hf-multiplatform.${version}.xilinx-platforms.zynq;
             }
             // (
               if system == "aarch64-linux" then
                 {
-                  zynqmp = mkZynqmpPackages self.legacyPackages.${system}.${version}.xilinx-platforms.zynqmp;
+                  zynqmp = self.legacyPackages.${system}.${version}.xilinx-platforms.zynqmp;
                 }
               else
                 {
-                  zynqmp-aarch64-emu =
-                    mkZynqmpPackages
-                      self.legacyPackages.aarch64-linux.${version}.xilinx-platforms.zynqmp;
+                  zynqmp-aarch64-emu = self.legacyPackages.aarch64-linux.${version}.xilinx-platforms.zynqmp;
                   # zynqmp-aarch64-cross =
                   #   mkPlatformPackages
                   #     self.legacyPackages.${system}.pkgsCross.aarch64-multiplatform.${version}.xilinx-platforms.zynqmp;
                 }
             );
         in
-        mapFlattenAttrsRec
-          (path: value: {
-            name = nixpkgs.lib.traceVal nixpkgs.lib.concatStringsSep "-" path;
-            inherit value;
-          })
-          {
-            nixos-xlnx-2024_1 = mkNixosXlnxPackages "nixos-xlnx-2024_1";
-          }
+        nixpkgs.lib.filterAttrs
+          (
+            _: value:
+            let
+              check = builtins.tryEval (
+                nixpkgs.lib.isDerivation value
+                && nixpkgs.lib.hasAttr "meta" value
+                && nixpkgs.lib.hasAttr "nixos-xlnx" value.meta
+                && (!(nixpkgs.lib.hasAttr "broken" value.meta) || !value.meta.broken)
+              );
+            in
+            check.success && check.value
+          )
+          (
+            mapFlattenAttrsRec
+              (path: value: {
+                name = nixpkgs.lib.concatStringsSep "-" path;
+                inherit value;
+              })
+              {
+                nixos-xlnx-2024_1 = mkNixosXlnxPackages "nixos-xlnx-2024_1";
+              }
+          )
       );
     };
 }

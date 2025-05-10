@@ -54,6 +54,22 @@ rec {
     }
     // drv;
 
+  sourcesForPlatform =
+    platform:
+    let
+      sources = (
+        platform.callPackage (
+          { xilinxSources, xilinxVersion }:
+          {
+            inherit xilinxSources xilinxVersion;
+          }
+        ) { }
+      );
+    in
+    {
+      inherit (sources) xilinxSources xilinxVersion;
+    };
+
   types = {
     xilinxPlatform = (nixpkgs.lib.types.attrsOf nixpkgs.lib.types.unspecified) // {
       name = "xilinxPlatform";

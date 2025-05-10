@@ -1,6 +1,7 @@
 {
   lib,
   buildLinux,
+  system,
   stdenv,
   defconfig ? "xilinx_defconfig",
   kernelPatches ? [ ],
@@ -69,10 +70,16 @@ buildLinux (
         ]
         ++ kernelPatches;
 
-      extraMeta.platforms = [
-        "aarch64-linux"
-        "armv7l-linux"
-      ];
+      extraMeta = rec {
+        platforms = [
+          "aarch64-linux"
+          "armv7l-linux"
+        ];
+        broken = !(lib.elem system platforms);
+        nixos-xlnx = {
+          inherit xilinxVersion;
+        };
+      };
     }
     // (args.argsOverride or { })
   )
