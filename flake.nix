@@ -6,12 +6,25 @@
   outputs =
     { self, nixpkgs }@inputs:
     let
-      inherit (import ./lib.nix inputs)
+      lib = import ./lib.nix inputs;
+      inherit (lib)
         eachPackageSet
         eachSystem
+        mapFlattenAttrsRec
         ;
     in
     {
+      inherit lib;
+
+      checks = eachSystem (
+        system:
+        nixpkgs.lib.mapAttrs' (name: value: {
+          name = "build-${name}";
+          inherit value;
+        }) self.packages.${system}
+
+      );
+
       devShells = eachPackageSet (pkgs: {
         default = pkgs.callPackage ./shell.nix { };
       });
@@ -21,14 +34,59 @@
         import nixpkgs {
           inherit system;
           overlays = nixpkgs.lib.attrValues self.overlays;
+          config.allowUnfree = true;
         }
       );
-
-      overlays.default = import ./overlay.nix inputs;
 
       nixosModules.default = _: {
         imports = [ ./sd-image.nix ];
         nixpkgs.overlays = nixpkgs.lib.attrValues self.overlays;
       };
+
+      overlays.default = import ./overlay.nix inputs;
+
+      packages = eachSystem (
+        system:
+        let
+          mkZynqPackages = zynq: {
+            inherit (zynq) kernel;
+          };
+
+          mkZynqmpPackages = zynqmp: {
+            inherit (zynqmp) bootgen kernel;
+          };
+
+          mkNixosXlnxPackages =
+            version:
+            {
+              zynq-armvl7-cross =
+                mkZynqPackages
+                  self.legacyPackages.${system}.pkgsCross.armv7l-hf-multiplatform.${version}.xilinx-platforms.zynq;
+            }
+            // (
+              if system == "aarch64-linux" then
+                {
+                  zynqmp = mkZynqmpPackages self.legacyPackages.${system}.${version}.xilinx-platforms.zynqmp;
+                }
+              else
+                {
+                  zynqmp-aarch64-emu =
+                    mkZynqmpPackages
+                      self.legacyPackages.aarch64-linux.${version}.xilinx-platforms.zynqmp;
+                  # zynqmp-aarch64-cross =
+                  #   mkPlatformPackages
+                  #     self.legacyPackages.${system}.pkgsCross.aarch64-multiplatform.${version}.xilinx-platforms.zynqmp;
+                }
+            );
+        in
+        mapFlattenAttrsRec
+          (path: value: {
+            name = nixpkgs.lib.traceVal nixpkgs.lib.concatStringsSep "-" path;
+            inherit value;
+          })
+          {
+            nixos-xlnx-2024_1 = mkNixosXlnxPackages "nixos-xlnx-2024_1";
+          }
+      );
     };
 }

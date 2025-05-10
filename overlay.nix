@@ -41,11 +41,6 @@ let
             (final.pkgsCross.aarch64-embedded.callPackages ./pkgs/embeddedsw.nix {
               xilinxSources = nixos-xlnx.xilinxSources;
             }).zynq-fsbl;
-
-          pmufw =
-            (final.pkgsCross.microblaze-embedded.callPackages ./pkgs/embeddedsw.nix {
-              xilinxSources = nixos-xlnx.xilinxSources;
-            }).zynq-pmufw;
         });
 
         zynqmp = final.lib.makeScope nixos-xlnx.newScope (zynqmp: {

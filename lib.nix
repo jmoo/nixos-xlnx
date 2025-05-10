@@ -1,15 +1,50 @@
 { nixpkgs, self, ... }:
+let
+  inherit (nixpkgs.lib)
+    listToAttrs
+    isDerivation
+    concatLists
+    genAttrs
+    mapAttrs
+    mapAttrsToList
+    recursiveUpdate
+    isAttrs
+    elem
+
+    ;
+in
 rec {
-  eachSystem = nixpkgs.lib.genAttrs [
+  eachSystem = genAttrs [
     "aarch64-darwin"
     "aarch64-linux"
     "x86_64-linux"
   ];
 
-  eachPackageSet = f: nixpkgs.lib.mapAttrs (_: f) self.legacyPackages;
+  eachPackageSet = f: mapAttrs (_: f) self.legacyPackages;
 
-  overrideSource =
-    src: drv: drv.overrideAttrs (prev: nixpkgs.lib.recursiveUpdate prev (withSource src { }));
+  mapFlattenAttrsRec =
+    f: attrs:
+    let
+      recurse =
+        path: attrs:
+        concatLists (
+          mapAttrsToList (
+            name: value:
+            let
+              check = builtins.tryEval (isAttrs value && !(isDerivation value));
+            in
+            if check.success && check.value then
+              recurse (path ++ [ name ]) value
+            else
+              [
+                (f (path ++ [ name ]) value)
+              ]
+          ) attrs
+        );
+    in
+    listToAttrs (recurse [ ] attrs);
+
+  overrideSource = src: drv: drv.overrideAttrs (prev: recursiveUpdate prev (withSource src { }));
 
   withSource =
     src: drv:
@@ -20,13 +55,13 @@ rec {
     // drv;
 
   types = {
-    xilinxPlatform = (nixpkgs.lib.attrsOf nixpkgs.lib.unspecified) // {
+    xilinxPlatform = (nixpkgs.lib.types.attrsOf nixpkgs.lib.types.unspecified) // {
       name = "xilinxPlatform";
       description = "Platform scope from `pkgs.nixos-xlnx.xilinx-platforms";
       check =
         x:
-        (nixpkgs.lib.isAttrs x)
-        && nixpkgs.lib.elem x [
+        (isAttrs x)
+        && elem x [
           "zynq"
           "zynqmp"
         ];
