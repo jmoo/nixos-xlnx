@@ -23,6 +23,18 @@ rec {
 
   eachPackageSet = f: mapAttrs (_: f) self.legacyPackages;
 
+  filterPackage =
+    value:
+    let
+      check = builtins.tryEval (
+        nixpkgs.lib.isDerivation value
+        && nixpkgs.lib.hasAttr "meta" value
+        && nixpkgs.lib.hasAttr "nixos-xlnx" value.meta
+        && (!(nixpkgs.lib.hasAttr "broken" value.meta) || !value.meta.broken)
+      );
+    in
+    check.success && check.value;
+
   mapFlattenAttrsRec =
     f: attrs:
     let

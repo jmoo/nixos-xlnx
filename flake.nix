@@ -11,6 +11,7 @@
         eachPackageSet
         eachSystem
         mapFlattenAttrsRec
+        filterPackage
         ;
 
       inherit (nixpkgs.lib) mapAttrs mapAttrs';
@@ -74,61 +75,41 @@
         let
           mkPackages =
             version:
-            mapAttrs
-              (
-                _: platform:
-                platform.callPackage (
-                  {
-                    libmali-xlnx,
-                    libomxil-xlnx,
-                    libvcu-xlnx,
-                  }@extras:
-                  platform // extras
-                ) { }
-              )
-              (
-                {
-                  # zynq-armvl7-cross =
-                  #   self.legacyPackages.${system}.pkgsCross.armv7l-hf-multiplatform.${version}.xilinx-platforms.zynq;
-                }
-                // (
-                  if system == "aarch64-linux" then
-                    {
-                      zynqmp = self.legacyPackages.${system}.${version}.xilinx-platforms.zynqmp;
-                    }
-                  else
-                    {
-                      zynqmp-aarch64-emu = self.legacyPackages.aarch64-linux.${version}.xilinx-platforms.zynqmp;
-                      # zynqmp-aarch64-cross =
-                      #     self.legacyPackages.${system}.pkgsCross.aarch64-multiplatform.${version}.xilinx-platforms.zynqmp;
-                    }
-                )
-              );
-        in
-        (nixpkgs.lib.filterAttrs
-          (
-            _: value:
             let
-              check = builtins.tryEval (
-                nixpkgs.lib.isDerivation value
-                && nixpkgs.lib.hasAttr "meta" value
-                && nixpkgs.lib.hasAttr "nixos-xlnx" value.meta
-                && (!(nixpkgs.lib.hasAttr "broken" value.meta) || !value.meta.broken)
-              );
+              armv7l-cross-pkgs =
+                with self.legacyPackages.${system}.pkgsCross.armv7l-hf-multiplatform.${version}; {
+                  zynq-armvl7-cross = xilinx-platforms.zynq;
+                };
+
+              aarch64-native-pkgs = with self.legacyPackages.aarch64-linux.${version}; {
+                inherit libmali-xlnx libomxil-xlnx libvcu-xlnx;
+                zynqmp = xilinx-platforms.zynqmp;
+              };
             in
-            check.success && check.value
-          )
-          (
-            mapFlattenAttrsRec
-              (path: value: {
-                name = nixpkgs.lib.concatStringsSep "-" path;
+            # Add armv7l-cross builds to every host system
+            armv7l-cross-pkgs
+
+            # Add native aarch64-linux builds to aarch64-linux hosts
+            // (nixpkgs.lib.optionalAttrs (system == "aarch64-linux") aarch64-native-pkgs)
+
+            # Add emulated aarch64 builds to all non-aarch64-linux host systems
+            // (nixpkgs.lib.optionalAttrs (system != "aarch64-linux") (
+              mapAttrs' (name: value: {
+                name = "${name}-aarch64-emu";
                 inherit value;
-              })
-              {
-                nixos-xlnx-2024_1 = mkPackages "nixos-xlnx-2024_1";
-              }
-          )
-        )
+              }) aarch64-native-pkgs
+            ));
+        in
+        (nixpkgs.lib.filterAttrs (_: filterPackage) (
+          mapFlattenAttrsRec
+            (path: value: {
+              name = nixpkgs.lib.concatStringsSep "-" path;
+              inherit value;
+            })
+            {
+              nixos-xlnx-2024_1 = mkPackages "nixos-xlnx-2024_1";
+            }
+        ))
         // {
           lopper = self.legacyPackages.${system}.python3Packages.lopper;
         }
