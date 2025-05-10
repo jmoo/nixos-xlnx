@@ -12,9 +12,11 @@ let
     xlnx-hdmi-modules = kfinal.callPackage ./pkgs/kernel-packages/hdmi-modules.nix overrides;
     xlnx-dp-modules = kfinal.callPackage ./pkgs/kernel-packages/dp-modules.nix overrides;
     xlnx-vcu-modules = kfinal.callPackage ./pkgs/kernel-packages/vcu-modules.nix overrides;
+    
+    # # Broken:
     # xlnx-mali-modules = kfinal.callPackage ./pkgs/kernel-packages/mali-modules.nix overrides;
     # xlnx-dma-proxy = kfinal.callPackage ./pkgs/kernel-packages/dma-proxy.nix overrides;
-    # bperez77-xilinx-axidma = kfinal.callPackage ./pkgs/kernel-packages/xilinx-axidma.nix overrides;
+    # bperez77-xilinx-axidma = kfinal.callPackage ./pkgs/kernel-packages/axidma.nix overrides;
     # jacobfeder-axisfifo = kfinal.callPackage ./pkgs/kernel-packages/axisfifo.nix overrides;
   };
 

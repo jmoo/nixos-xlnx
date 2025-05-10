@@ -11,7 +11,7 @@ stdenv.mkDerivation (
   finalAttrs:
   (lib.nixos-xlnx.withSource xilinxSources.mali-modules {
     name = "mali-modules-${kernel.version}-${finalAttrs.version}";
-    # sourceRoot = "DX910-SW-99002-${finalAttrs.version}/driver/src/devicedrv/mali";
+    sourceRoot = "DX910-SW-99002-${finalAttrs.version}/driver/src/devicedrv/mali";
 
     nativeBuildInputs = kernel.moduleBuildDependencies ++ [ ];
 

@@ -6,6 +6,13 @@ let
 in
 sources
 // {
+  xilinx_axidma = sources.xilinx_axidma // {
+    patches = pkgs.fetchpatch {
+      url = "https://github.com/andrewvoznytsa/xilinx_axidma/commit/a87240b08b61f5c8f8964318f73d249adcc6e9ce.patch";
+      hash = "sha256-pNuIPj9s5R0P7x65+6+22dg9VZLBRegyJe94g6KmPU4=";
+    };
+  };
+
   mali-modules = sources.mali-modules // {
     patches =
       let

@@ -11,7 +11,7 @@ let
     recursiveUpdate
     isAttrs
     elem
-
+    optionalAttrs
     ;
 in
 rec {
@@ -49,19 +49,23 @@ rec {
 
   withSource =
     src: drv:
-    {
-      inherit src;
-
+    let
       version =
         if hasAttr "version" src then
           src.version
         else if hasAttr "rev" src then
           src.rev
         else
-          abort "No version or rev for src";
+          null;
 
+      name = if hasAttr "repo" src then src.repo else null;
+    in
+    {
+      inherit src;
       patches = if hasAttr "patches" src then src.patches else [ ];
     }
+    // (optionalAttrs (name != null) { inherit name; })
+    // (optionalAttrs (version != null) { inherit version; })
     // drv;
 
   sourcesForPlatform =
